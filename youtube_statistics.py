@@ -1,3 +1,4 @@
+from re import I
 import requests #pip3 install requests
 import json
 
@@ -41,7 +42,38 @@ class YT_Stats:
         
         if limit is not None and isinstance(limit, int):
             url += '&maxResults=' + str(limit)
-        print(url)
+        #print(url)
+
+        vid,npt = self._get_channel_videos_per_page(url)
+        idx = 0
+        while (npt is not None and idx <10):
+            nexturl = url + "&pageToken=" npt
+            next_vid, npt = self._get_channel_videos_per_page(nexturl)
+            vid.update(next_vid)
+            idx +=1
+        return vid
+
+
+    def _get_channel_videos_per_page(self,url):
+        json_url = requests.get(url)
+
+        data = json.loads(json_url.text)
+        channel_videos = dict()
+        if 'items' not in data:
+            return channel_videos, None
+        
+        item_data = data['items']
+        nextPageToken = data.get["nextPageToken",None]
+        for i in item_data:
+            try:
+                kind = i['id']['kind']
+                if kind == 'youtube#video':
+                    video_id = item['id']['videoId']
+                    channel_videos[video_id] = dict()
+            except KeyError:
+                print("error")
+        
+        return channel_videos,nextPageToken
 
     #CREAMOS UNA FUNCION PARA ALMACENAR EL JSON
     def dump(self):
