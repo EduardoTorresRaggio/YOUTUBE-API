@@ -33,6 +33,7 @@ class YT_Stats:
     def get_channel_video_data (self,limit=None):
         #conseguir video ids
         channel_videos = self._get_channel_videos(limit=50)
+        print(channel_videos)
         
 
         #conseguir estadisticas videos
@@ -47,7 +48,7 @@ class YT_Stats:
         vid,npt = self._get_channel_videos_per_page(url)
         idx = 0
         while (npt is not None and idx <10):
-            nexturl = url + "&pageToken=" npt
+            nexturl = url + "&pageToken=" + npt
             next_vid, npt = self._get_channel_videos_per_page(nexturl)
             vid.update(next_vid)
             idx +=1
